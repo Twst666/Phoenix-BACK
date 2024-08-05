@@ -103,19 +103,30 @@ async function Phoenix() {
     if (!isSessionFormatCorrect) {
         return;
     }
+    
+const GITHUB_TOKEN = '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';
 
-    const GITHUB_TOKEN = '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';
+// Split the session ID to get the Gist ID
+const [name, id] = config.SESSION_ID.split("~");
+if (name !== "Phoenix") {
+    console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
+    console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
+    console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
+    console.log("😂😂This Is A Copied Version!");
+    console.log("ℹ️My Real Creator Is Abhishek Suresh!");
+    process.exit(0);
+}
 
-    async function getSessionFromGist(gistId) {
-        const response = await axios.get(`https://api.github.com/gists/${gistId}/raw`, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
-
-        return JSON.parse(response.data);
+// Fetch session data from secret Gist
+axios.get(`https://api.github.com/gists/${id}`, {
+    headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json'
     }
+})
+.then(response => {
+    const fileContent = response.data.files[`${id}.json`].content;
+    const sessionData = JSON.parse(fileContent);
 
     if (!fs.existsSync("./auth")) {
         fs.mkdirSync('./auth');
@@ -124,20 +135,9 @@ async function Phoenix() {
         fs.mkdirSync('./auth');
     }
 
-    const [name, id] = config.SESSION_ID.split("~");
-    if (name !== "Phoenix") {
-        console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
-        console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
-        console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
-        console.log("😂😂This Is A Copied Version!");
-        console.log("ℹ️My Real Creator Is Abhishek Suresh!");
-        process.exit(0);
-    }
-
-    const sessionData = await getSessionFromGist(id);
     Object.keys(sessionData).forEach(a => fs.writeFileSync(`./auth/${a}`, JSON.stringify(sessionData[a]), "utf8"));
     console.log("Session Successfully Verified ✅");
-
+})
      console.log("Syncing Database");
 	await config.DATABASE.sync();
 
