@@ -97,6 +97,11 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
 	}
 });
 
+async function PhoenixSession(url) {
+    const response = await axios.get(url);
+    return response.data;
+}
+
 async function Phoenix() {
     const isSessionFormatCorrect = getBot(config.SESSION_ID);
 
@@ -104,8 +109,6 @@ async function Phoenix() {
         return;
     }
     
-const ABHISHEK = 'https://hastebin.com/documents';
-
 const [name, id] = config.SESSION_ID.split("~");
 if (name !== "Phoenix") {
     console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
@@ -115,10 +118,9 @@ if (name !== "Phoenix") {
     console.log("ℹ️My Real Creator Is Abhishek Suresh!");
     process.exit(0);
 }
-
-axios.get(`${ABHISHEK}/${id}`)
-    .then(response => {
-        const sessionData = JSON.parse(response.data.data);
+        const sessionUrl = `https://0x0.st/${id}`;
+        const sessionData = await PhoenixSession(sessionUrl);
+        const sessionJson = JSON.parse(sessionData);
 
         if (!fs.existsSync("./auth")) {
             fs.mkdirSync('./auth');
@@ -127,16 +129,10 @@ axios.get(`${ABHISHEK}/${id}`)
             fs.mkdirSync('./auth');
         }
 
-        Object.keys(sessionData).forEach(a => fs.writeFileSync(`./auth/${a}`, JSON.stringify(sessionData[a]), "utf8"));
+        Object.keys(sessionJson).forEach(file => {
+            fs.writeFileSync(`./auth/${file}`, JSON.stringify(sessionJson[file]), 'utf8');
+        });
         console.log("Session Successfully Verified ✅");
-    })
-    .catch(error => {
-        console.error('Error fetching session data from Hastebin:', error);
-        process.exit(1);
-    });
-
-     console.log("Syncing Database");
-	await config.DATABASE.sync();
 
     const { state, saveCreds } = await useMultiFileAuthState('auth');
     const { version, isLatest } = await fetchLatestBaileysVersion();
