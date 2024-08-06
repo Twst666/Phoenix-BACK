@@ -104,9 +104,8 @@ async function Phoenix() {
         return;
     }
     
-const GITHUB_TOKEN = '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';
+const ABHISHEK = 'https://hastebin.com/documents';
 
-// Split the session ID to get the Gist ID
 const [name, id] = config.SESSION_ID.split("~");
 if (name !== "Phoenix") {
     console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
@@ -117,27 +116,25 @@ if (name !== "Phoenix") {
     process.exit(0);
 }
 
-// Fetch session data from secret Gist
-axios.get(`https://api.github.com/gists/${id}`, {
-    headers: {
-        'Authorization': `token ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json'
-    }
-})
-.then(response => {
-    const fileContent = response.data.files[`${id}.json`].content;
-    const sessionData = JSON.parse(fileContent);
+axios.get(`${ABHISHEK}/${id}`)
+    .then(response => {
+        const sessionData = JSON.parse(response.data.data);
 
-    if (!fs.existsSync("./auth")) {
-        fs.mkdirSync('./auth');
-    } else {
-        fs.rmSync('./auth', { recursive: true });
-        fs.mkdirSync('./auth');
-    }
+        if (!fs.existsSync("./auth")) {
+            fs.mkdirSync('./auth');
+        } else {
+            fs.rmSync('./auth', { recursive: true });
+            fs.mkdirSync('./auth');
+        }
 
-    Object.keys(sessionData).forEach(a => fs.writeFileSync(`./auth/${a}`, JSON.stringify(sessionData[a]), "utf8"));
-    console.log("Session Successfully Verified ✅");
-})
+        Object.keys(sessionData).forEach(a => fs.writeFileSync(`./auth/${a}`, JSON.stringify(sessionData[a]), "utf8"));
+        console.log("Session Successfully Verified ✅");
+    })
+    .catch(error => {
+        console.error('Error fetching session data from Hastebin:', error);
+        process.exit(1);
+    });
+
      console.log("Syncing Database");
 	await config.DATABASE.sync();
 
