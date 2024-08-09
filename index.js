@@ -110,6 +110,7 @@ async function Phoenix() {
     }
     
 const [name, id] = config.SESSION_ID.split("~");
+
 if (name !== "Phoenix") {
     console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
     console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
@@ -118,21 +119,24 @@ if (name !== "Phoenix") {
     console.log("ℹ️My Real Creator Is Abhishek Suresh!");
     process.exit(0);
 }
-        const sessionUrl = `https://0x0.st/${id}`;
-        const sessionData = await PhoenixSession(sessionUrl);
-        const sessionJson = JSON.parse(sessionData);
 
-        if (!fs.existsSync("./auth")) {
-            fs.mkdirSync('./auth');
-        } else {
-            fs.rmSync('./auth', { recursive: true });
-            fs.mkdirSync('./auth');
-        }
+const sessionUrl = `https://pastebin.com/raw/${id}`;
+const { data } = await axios.get(sessionUrl);
 
-        Object.keys(sessionJson).forEach(file => {
-            fs.writeFileSync(`./auth/${file}`, JSON.stringify(sessionJson[file]), 'utf8');
-        });
-        console.log("Session Successfully Verified ✅");
+if (!fs.existsSync("./auth")) {
+    fs.mkdirSync('./auth');
+} else {
+    fs.rmSync('./auth', { recursive: true });
+    fs.mkdirSync('./auth');
+}
+
+const sessionJson = JSON.parse(data.message);
+
+Object.keys(sessionJson).forEach(file => {
+    fs.writeFileSync(`./auth/${file}`, JSON.stringify(sessionJson[file]), 'utf8');
+});
+
+console.log("Session Successfully Verified ✅");
 
     const { state, saveCreds } = await useMultiFileAuthState('auth');
     const { version, isLatest } = await fetchLatestBaileysVersion();
