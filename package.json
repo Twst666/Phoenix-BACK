@@ -59,7 +59,7 @@
     "cluster":"^0.7.7",
     "pg": "^8.8.0",
     "pino": "^8.1.0",
-    "pm2": "^5.2.0",
+    "pm2": "latest",
     "qrcode": "^1.5.1",
     "qrcode-reader": "^1.0.4",
     "qrcode-terminal": "^0.12.0",
