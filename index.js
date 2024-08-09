@@ -97,51 +97,29 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
 	}
 });
 
-async function PhoenixSession(url) {
-    const response = await axios.get(url);
-    return response.data;
-}
+  async function Phoenix() {
+  const isSessionFormatCorrect = getBot(config.SESSION_ID);
 
-async function Phoenix() {
-    const isSessionFormatCorrect = getBot(config.SESSION_ID);
+  if (!isSessionFormatCorrect) {
+    return;c
+  }
 
-    if (!isSessionFormatCorrect) {
-        return;
-    }
-    
-const [name, id] = config.SESSION_ID.split("~");
+  const { data } = await axios.get("https://pastebin.com/raw/",
+	{ text: config.SESSION_ID.split('~')[1] });
+        await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data.message))	
+        const {
+		state,
+		saveCreds
+	} = await useMultiFileAuthState(
+		"./lib/phoenix/session/",
+		pino({
+			level: "silent"
+		})
+	);
 
-if (name !== "Phoenix") {
-    console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
-    console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
-    console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
-    console.log("😂😂This Is A Copied Version!");
-    console.log("ℹ️My Real Creator Is Abhishek Suresh!");
-    process.exit(0);
-}
+	        console.log("Syncing Database");
+	await config.DATABASE.sync();
 
-const sessionUrl = `https://pastebin.com/raw/${id}`;
-const { data } = await axios.get(sessionUrl);
-
-if (!fs.existsSync("./auth")) {
-    fs.mkdirSync('./auth');
-} else {
-    fs.rmSync('./auth', { recursive: true });
-    fs.mkdirSync('./auth');
-}
-
-const sessionJson = JSON.parse(data.message);
-
-Object.keys(sessionJson).forEach(file => {
-    fs.writeFileSync(`./auth/${file}`, JSON.stringify(sessionJson[file]), 'utf8');
-});
-
-console.log("Session Successfully Verified ✅");
-
-    const { state, saveCreds } = await useMultiFileAuthState('auth');
-    const { version, isLatest } = await fetchLatestBaileysVersion();
-    const logger = pino({ level: 'silent' });
-    
 	let conn = makeWASocket({
 		logger: pino({
 			level: "silent"
