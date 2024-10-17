@@ -357,3 +357,8 @@ if (config.AUTO_STATUS_READ && msg.key.remoteJid === 'status@broadcast') {
 setTimeout(() => {
 	Phoenix().catch((err) => console.log(err));
 }, 3000);
+
+app.get("/", (req, res) => {
+	res.send("Hello Phoenix-MD Started");
+});
+app.listen(port, () => console.log(`Phoenix-MD Server Listening On Port http://localhost:${port}`));
