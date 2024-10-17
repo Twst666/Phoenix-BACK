@@ -107,7 +107,7 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
 const [name, id] = config.SESSION_ID.split("~");
         if (name !== "Phoenix") {
             console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
-            console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
+            console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From https://github.com/AbhishekSuresh2/Phoenix-Bot");
             console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
             console.log("😂😂This Is A Copied Version!");
             console.log("ℹ️My Real Creator Is Abhishek Suresh!");
