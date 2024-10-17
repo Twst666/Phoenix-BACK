@@ -115,7 +115,7 @@ const [name, id] = config.SESSION_ID.split("~");
             return;
         }
 	  
-        const { data } = await axios(`https://paste.c-net.org/${id}`);
+        const { data } = await axios.get(`https://paste.c-net.org/${id}`);
         await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data.message))	
         const {
 		state,
