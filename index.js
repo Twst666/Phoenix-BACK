@@ -98,34 +98,39 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
 });
 
   async function Phoenix() {
-  const isSessionFormatCorrect = getBot(config.SESSION_ID);
+    const isSessionFormatCorrect = getBot(config.SESSION_ID);
 
-  if (!isSessionFormatCorrect) {
-    return;
-  }
+    if (!isSessionFormatCorrect) {
+        return;
+    }
 
-const [name, id] = config.SESSION_ID.split("~");
-        if (name !== "Phoenix") {
-            console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
-            console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From https://github.com/AbhishekSuresh2/Phoenix-Bot");
-            console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
-            console.log("😂😂This Is A Copied Version!");
-            console.log("ℹ️My Real Creator Is Abhishek Suresh!");
-            process.exitCode = 1; // Set exit code to indicate failure
-            return;
-        }
-	  
-        const { data } = await axios.get(`https://paste.c-net.org/${id}`);
-        await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data.message))	
-        const {
-		state,
-		saveCreds
-	} = await useMultiFileAuthState(
-		"./lib/phoenix/session/",
-		pino({
-			level: "silent"
-		})
-	);
+    // Split the SESSION_ID to get the id
+    const [name, sessionId] = config.SESSION_ID.split("~");
+    
+    // Ensure the name is "Phoenix"
+    if (name !== "Phoenix") {
+        console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
+        console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From https://github.com/AbhishekSuresh2/Phoenix-Bot");
+        console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
+        console.log("😂😂This Is A Copied Version!");
+        console.log("ℹ️ My Real Creator Is Abhishek Suresh!");
+        process.exitCode = 1; // Set exit code to indicate failure
+        return;
+    }
+
+    // Fetch the data from the endpoint using the session ID
+    try {
+        const { data } = await axios.get(`https://abhi-simple-paste.onrender.com/paste/view/${sessionId}`);
+        await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data.message));
+    } catch (error) {
+        console.error("Error fetching data from endpoint:", error);
+        return; // Stop execution if fetching fails
+    }
+
+    const { state, saveCreds } = await useMultiFileAuthState(
+        "./lib/phoenix/session/",
+        pino({ level: "silent" })
+    );
 
 	        console.log("Syncing Database");
 	await config.DATABASE.sync();
