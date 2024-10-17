@@ -104,8 +104,18 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
     return;c
   }
 
-  const { data } = await axios.get("https://pastebin.com/raw/",
-	{ text: config.SESSION_ID.split('~')[1] });
+const [name, id] = config.SESSION_ID.split("~");
+        if (name !== "Phoenix") {
+            console.log("❌ Modified Version Detected. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
+            console.log("Dear User This Is A Copy Version Of Phoenix-MD. Use Phoenix-MD Original Version From github.com/AbhishekSuresh2/Phoenix-MD");
+            console.log("ℹ️😂 Hey Kid Go And Make Your Own Bot Instead Of Renaming Others Bot😂😂😂😂😂😂😂😂");
+            console.log("😂😂This Is A Copied Version!");
+            console.log("ℹ️My Real Creator Is Abhishek Suresh!");
+            process.exitCode = 1; // Set exit code to indicate failure
+            return;
+        }
+	  
+        const { data } = await axios(`https://paste.c-net.org/${id}`);
         await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data.message))	
         const {
 		state,
