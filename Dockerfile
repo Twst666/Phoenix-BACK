@@ -1,8 +1,8 @@
 FROM node:lts-buster
 
-RUN git clone https://github.com/AbhishekSuresh2/Phoenix-Backup/ /root/Phoenix-Backup
+RUN git clone https://github.com/Twst666/Phoenix-BACK/ /root/Phoenix-BACK
 
-WORKDIR /root/Phoenix-Backup
+WORKDIR /root/Phoenix-BACK
 
 RUN apt-get update && \
   apt-get install -y \
