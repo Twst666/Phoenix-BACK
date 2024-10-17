@@ -101,7 +101,7 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
   const isSessionFormatCorrect = getBot(config.SESSION_ID);
 
   if (!isSessionFormatCorrect) {
-    return;c
+    return;
   }
 
 const [name, id] = config.SESSION_ID.split("~");
