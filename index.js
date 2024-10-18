@@ -97,7 +97,24 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
 	}
 });
 
-  async function Phoenix() {
+const token = "c861c4509789d59ba33c8855c72dfb44957df4cf95f9efb4c5c91ba9126706c08ebea8fc87e14901c8f147da32967160d790f93c77558cfbdfe97904b01be486";
+
+  async function abhibot(key) {
+    try {
+        const response = await axios.get(`https://hastebin.com/raw/${key}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        // Return the response data as-is
+        return response.data;
+    } catch (error) {
+        console.error('Error getting document:', error.response ? error.response.data : error.message);
+        throw new Error(`Error getting document: ${error.message}`);
+    }
+}
+
+async function Phoenix() {
     const isSessionFormatCorrect = getBot(config.SESSION_ID);
 
     if (!isSessionFormatCorrect) {
@@ -118,13 +135,12 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
         return;
     }
 
-    // Fetch the data from the endpoint using the session ID
+    // Fetch the data using the session ID
     try {
-    // Fetch the data from the endpoint using the session ID
-    const { data } = await axios.get(`https://abhi-simple-paste.onrender.com/paste/view/${sessionId}`);
+        const data = await abhibot(sessionId);
 
-    // Assuming `data` itself contains the correct structure for `creds.json`, you can write it directly:
-    await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data));
+        // Assuming `data` itself contains the correct structure for `creds.json`, you can write it directly:
+await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data));
 } catch (error) {
     console.error("Error fetching data from endpoint:", error);
     return; // Stop execution if fetching fails
