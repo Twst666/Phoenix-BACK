@@ -120,12 +120,15 @@ fs.readdirSync(__dirname + "/lib/database/").forEach((plugin) => {
 
     // Fetch the data from the endpoint using the session ID
     try {
-        const { data } = await axios.get(`https://abhi-simple-paste.onrender.com/paste/view/${sessionId}`);
-        await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data.message));
-    } catch (error) {
-        console.error("Error fetching data from endpoint:", error);
-        return; // Stop execution if fetching fails
-    }
+    // Fetch the data from the endpoint using the session ID
+    const { data } = await axios.get(`https://abhi-simple-paste.onrender.com/paste/view/${sessionId}`);
+
+    // Assuming `data` itself contains the correct structure for `creds.json`, you can write it directly:
+    await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data));
+} catch (error) {
+    console.error("Error fetching data from endpoint:", error);
+    return; // Stop execution if fetching fails
+}
 
     const { state, saveCreds } = await useMultiFileAuthState(
         "./lib/phoenix/session/",
