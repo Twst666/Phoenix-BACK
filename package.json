@@ -24,7 +24,7 @@
   "author": "Abhishek Suresh",
   "license": "Apache-2.0",
   "dependencies": {
-   "@whiskeysockets/baileys": "github:AbhishekSuresh2/Baileys.js",
+   "@whiskeysockets/baileys": "github:A-S-W-I-N-S-P-A-R-K-Y/Baileys.js",
     "@adiwajshing/keyed-db": "^0.2.4",
     "abhishek-ytube": "^1.0.0",
     "awesome-phonenumber": "^3.4.0",
