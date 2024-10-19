@@ -15,101 +15,60 @@ const X = require("../config");
 var videotime = 60000; // 1000 min
 var dlsize = 1000; // 1000mb
 
-// Play Command
 pnix(
   {
-    pattern: "play",
+    pattern: "rara",
     fromMe: isPrivate,
     type: "downloader",
   },
   async (message, match, m) => {
     try {
-    await message.client.sendMessage(message.jid, { react: { text: "🎼", key: m.key } });
-
-    const play = match || m.quoted.text;
-    if (!play) return await message.reply(`_Enter A Song Name/Link_\n_📌 Example: *${m.prefix}play Heat Waves*_`);
-
-      let yts = require("yt-search");
-      let search = await yts(play);
-      let anu = search.videos[0];
-      let infoYt = await ytdl.getInfo(anu.url);
-
-      if (infoYt.videoDetails.lengthSeconds >= videotime) return message.reply(`*Video File Is Too Big*`);
-
-      const randomName = `${Math.floor(Math.random() * 10000)}.mp3`;
-
-      await message.client.sendMessage(message.jid, { text: `_⬇ Downloading... *${infoYt.videoDetails.title}*_` }, { quoted: m });
-
-      const stream = ytdl(anu.url, {
-        filter: (info) => info.audioBitrate == 160 || info.audioBitrate == 128,
-      }).pipe(fs.createWriteStream(`./media/${randomName}`));
-
-      await new Promise((resolve, reject) => {
-        stream.on("error", reject);
-        stream.on("finish", resolve);
-      });
-
-      let stats = fs.statSync(`./media/${randomName}`);
-      if (stats.size / (1024 * 1024) <= dlsize) {
-        await message.client.sendMessage(message.jid, { text: `_⬆ Uploading... *${infoYt.videoDetails.title}*_` }, { quoted: m });
-
-        let buttonMessage = {
-          audio: fs.readFileSync(`./media/${randomName}`),
-          mimetype: 'audio/mpeg',
-          fileName: infoYt.videoDetails.title + ".mp3",
-        };
-
-        await message.client.sendMessage(message.jid, buttonMessage, { quoted: m });
-        message.client.sendMessage(message.jid, { react: { text: "✅", key: m.key } });
-      } else {
-        message.client.sendMessage(message.jid, { react: { text: "❌", key: m.key } });
-        message.reply(`_File size bigger than 100mb_`);
+      // Get the song name or URL from the message or quoted text
+      const play = match || m.quoted?.text;
+      
+      // If no song name or URL is provided, prompt the user
+      if (!play) {
+        return await message.reply(`_Enter A Song Name_\n_📌 Example: *${m.prefix}song Heat Waves*_`);
       }
 
-      fs.unlinkSync(`./media/${randomName}`);
-    } catch (error) {
-      message.client.sendMessage(message.jid, { react: { text: "❌", key: m.key } });
-      message.reply(`_An error occurred during download._`);
-    }
-  }
-);
-
-
-pnix(
-  {
-    pattern: "song",
-    fromMe: isPrivate,
-    type: "downloader",
-  },
-  async (message, match, m) => {
-    try {
+      // React with a music emoji to indicate processing
       await message.client.sendMessage(message.jid, { react: { text: "🎧", key: m.key } });
-      const play = match || m.quoted.text;
-      if (!play) return await message.reply(`_Enter A Song Name/Link_\n_📌 Example: *${m.prefix}play Heat Waves*_`);
 
-      const res = await axios.get(`https://viper.xasena.me/api/v1/yta?query=${encodeURIComponent(play)} Song`);
+      // Make the API request to fetch the song
+      const res = await axios.get(`https://viper.xasena.me/api/v1/yta?query=${encodeURIComponent(play)}`);
       const response = res.data;
 
+      // Check if the response is successful
       if (response.status !== "true") {
-        return message.reply("_An error occurred while fetching the song details._");
+        return message.reply("_❗ An error occurred while fetching the song details. Please try again with a different song name or link._");
       }
 
       const { title, downloadUrl } = response.data;
 
+      // Inform the user that the download is starting
       await message.client.sendMessage(message.jid, { text: `_⬇ Downloading *${title}...*_` }, { quoted: m });
 
-      // Send the audio directly from the downloadUrl
+      // Send the audio file directly as a message
       let buttonMessage = {
         audio: { url: downloadUrl },
         mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
       };
 
+      // Send as audio and also as a downloadable document
+      let doc = {
+        document: { url: downloadUrl },
+        mimetype: 'audio/mpeg', // Generic file mimetype for documents
+        fileName: `${title}.mp3`,
+      };
 
+      // Send the audio and document to the user
       await message.client.sendMessage(message.jid, buttonMessage, { quoted: m });
-      
+      await message.client.sendMessage(message.jid, doc, { quoted: m });
+
     } catch (error) {
-      message.reply(`_An error occurred during download._`);
+      // Catch and respond to any errors during the process
+      message.reply(`_Can't Find The Song Try Searching It With The Name Of The Artist_\n_📌 Example: *${m.prefix}song Heat Waves Glass Animals*_`);
     }
   }
 );
