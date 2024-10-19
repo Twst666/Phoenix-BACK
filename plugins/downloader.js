@@ -105,15 +105,8 @@ pnix(
         fileName: `${title}.mp3`,
       };
 
-      // Send as audio and also as a downloadable document
-      let doc = {
-        document: { url: downloadUrl },
-        mimetype: 'application/octet-stream', // Generic file mimetype for documents
-        fileName: `${title}.mp3`,
-      };
 
       await message.client.sendMessage(message.jid, buttonMessage, { quoted: m });
-      await message.client.sendMessage(message.jid, doc, { quoted: m });
       
     } catch (error) {
       message.reply(`_An error occurred during download._`);
