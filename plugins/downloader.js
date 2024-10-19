@@ -87,7 +87,7 @@ pnix(
       const play = match || m.quoted.text;
       if (!play) return await message.reply(`_Enter A Song Name/Link_\n_📌 Example: *${m.prefix}play Heat Waves*_`);
 
-      const res = await axios.get(`https://viper.xasena.me/api/v1/yta?query=${play} Song`);
+      const res = await axios.get(`https://viper.xasena.me/api/v1/yta?query=${encodeURIComponent(play)} Song`);
       const response = res.data;
 
       if (response.status !== "true") {
@@ -105,12 +105,13 @@ pnix(
         fileName: `${title}.mp3`,
       };
 
-     let doc = {
+      // Send as audio and also as a downloadable document
+      let doc = {
         document: { url: downloadUrl },
         mimetype: 'application/octet-stream', // Generic file mimetype for documents
         fileName: `${title}.mp3`,
       };
-      
+
       await message.client.sendMessage(message.jid, buttonMessage, { quoted: m });
       await message.client.sendMessage(message.jid, doc, { quoted: m });
       
@@ -119,7 +120,6 @@ pnix(
     }
   }
 );
-
 
 // YouTube Search Command
 pnix(
