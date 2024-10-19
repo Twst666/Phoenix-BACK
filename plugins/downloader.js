@@ -17,7 +17,7 @@ var dlsize = 1000; // 1000mb
 
 pnix(
   {
-    pattern: "rara",
+    pattern: "song",
     fromMe: isPrivate,
     type: "downloader",
   },
@@ -68,7 +68,7 @@ pnix(
 
     } catch (error) {
       // Catch and respond to any errors during the process
-      message.reply(`_Can't Find The Song Try Searching It With The Name Of The Artist_\n_📌 Example: *${m.prefix}song Heat Waves Glass Animals*_`);
+      message.reply(`_Can't Find The Song? Try Searching It With The Name Of The Artist_\n_📌 Example: *${m.prefix}song Heat Waves Glass Animals*_`);
     }
   }
 );
