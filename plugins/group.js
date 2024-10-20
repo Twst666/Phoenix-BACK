@@ -34,6 +34,47 @@ pnix({
 });
 
 pnix({
+	pattern: 'gname',
+	fromMe: true,
+	desc: "To change the group's subject",
+	type: 'group'
+}, async (message, match, m) => {
+    if(!message.isGroup)
+     return await message.reply("_*This Command Is Only For Groups!*_");
+	match = match || message.reply_message.text;
+	if (!match) return await message.reply(`_Enter A Group Name_\n_📌 Example: *${m.prefix}gname Phoenix-MD Test Group*_`)
+	const meta = await message.client.groupMetadata(message.jid);
+	if (!meta.restrict) {
+		await message.client.groupUpdateSubject(message.jid, match)
+		return await message.reply("_Group Description Updated Successfully ✅_")
+	}
+	let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
+	await client.groupUpdateSubject(message.jid, match)
+	return await message.reply("_Group Name Updated Successfully ✅_")
+});
+
+pnix({
+    pattern: 'gdesc',
+    fromMe: true,
+    desc: "To change the group's description",
+    type: 'group'
+}, async (message, match, m) => {
+    match = match || message.reply_message.text;
+    if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    if (!match) return await message.reply(`_Enter A Group Description_\n_📌 Example: *${m.prefix}gdesc Welcome To Phoenix-MD Test Group*_`)
+    const meta = await message.client.groupMetadata(message.jid);
+    if (!meta.restrict) {
+      await message.client.groupUpdateDescription(message.jid, match)
+      return await message.reply("_Group Description Updated Successfully ✅_")
+    }
+    let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
+    await message.client.groupUpdateDescription(message.jid, match)
+    return await message.reply("_Group Description Updated Successfully ✅_")
+})
+
+pnix({
     pattern: 'lock',
     fromMe: true,
     desc: "only allow admins to modify the group's settings",
@@ -42,7 +83,7 @@ pnix({
     if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
     let isadmin = await isAdmin(message.jid, message.user, message.client);
     if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
-    const meta = await message.client.groupMetadata(message.chat)
+    const meta = await message.client.groupMetadata(message.jid)
     if (meta.restrict) return await message.reply("_Group Is Already *Locked*_")
     await message.client.groupSettingUpdate(message.jid, 'locked')
     return await message.reply("_Group *Locked* Successfully ✅_\n_Now Only Admins Can Modify The Group Settings_")
