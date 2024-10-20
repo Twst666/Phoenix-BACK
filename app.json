@@ -29,7 +29,7 @@
     "STICKER_DATA": {
       "description": "Enter Your Sticker PackName And Author Name",
       "required": false,
-      "value": "🎯𝙿𝚑𝚘𝚎𝚗𝚒𝚡-𝙼𝙳;𝙰𝚋𝚑𝚒𝚜𝚑𝚎𝚔 𝚂𝚞𝚛𝚎𝚜𝚑☘️"
+      "value": "ᴘʜᴏᴇɴɪx-ᴍᴅ🎯 ᴀʙʜɪsʜᴇᴋ sᴜʀᴇsʜ🍀"
     },
     "AUDIO_DATA": {
       "description": "Enter Your Audio Data",
@@ -91,11 +91,6 @@
    },
     "AUTO_READ_MSG": {
   "description": "If You Want To Read Messages Automatically Type true. Otherwise, Type false",
-  "value": "false",
-  "required": false
-   },
-    "AUTO_CALL_REJECT": {
-  "description": "If You Want To Reject Calls Automatically Type true. Otherwise, Type false",
   "value": "false",
   "required": false
    },
