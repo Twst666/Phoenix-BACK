@@ -304,18 +304,9 @@ pnix(
             // Format description
     const description = desc ? desc : "No Description";
         // Format owner ID
-        const ownerId = owner ? "@"+owner.split("@")[0] : "Not Found!";
+        const ownerId = owner ? "@"+owner.split("@")[0] : "Not Found";
 
-          let msg = `*ℹ️ Group Info:*
-- Subject: ${subject}
-- Creator: ${ownerId}
-- Created On: ${created}
-- Super Admin: ${creatorAdminPhone}
-- Total Number of Participants: ${participants.length}
-- Number of Admins: ${adminsCount}
-- Number of Participants: ${nonAdminsCount}
-
-- Description: ${description}`;
+          let msg = `╭───❮ *ɢʀᴏᴜᴘ ʟɪɴᴋ ʀᴇꜱᴇᴛᴇᴅ* ❯\n│  *ɢʀᴏᴜᴘ ɴᴀᴍᴇ:* ${subject}\n│  *ᴄʀᴇᴀᴛᴏʀ:* ${ownerId}\n│  *ᴄʀᴇᴀᴛᴇᴅ ᴏɴ:* ${created}\n│  *sᴜᴘᴇʀ ᴀᴅᴍɪɴ:* ${creatorAdminPhone}\n│  *ᴛᴏᴛᴀʟ ɴᴏ ᴏғ ᴍᴇᴍʙᴇʀs:* ${participants.length}\n│  *ɴᴜᴍʙᴇʀ ᴏғ ᴀᴅᴍɪɴs:* ${adminsCount}\n│  *ɴᴜᴍʙᴇʀ ᴏғ ᴘᴀʀᴛɪᴄɪᴘᴀɴᴛs:* ${nonAdminsCount}\n\n│  *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${description}\n╰─────────────⦁`;
 
 const jid = parsedJid(msg);
 return await message.reply(msg,{
