@@ -1,6 +1,19 @@
 const config = require("../config");
 const { pnix, isPrivate, isAdmin, parsedJid, isUrl } = require("../lib/");
 
+pnix({
+    pattern: 'invite',
+    fromMe: isPrivate,
+    desc: "Provides the group's invitation link.",
+    type: 'group'
+}, async (message) => {
+    if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_* I M Not An Admin!*_");
+    const data = await message.client.groupInviteCode(message.jid);
+    return await message.reply(`https://chat.whatsapp.com/${data}`);
+});
+
 pnix(
   {
     pattern: "add",
@@ -40,6 +53,7 @@ pnix(
     if (!isAdmin(message.jid, message.user, message.client))
       return await message.reply("_*I M Not An Admin!*_");
     match = match || message.reply_message.jid;
+    if (!match) return await message.reply("_Mention a User To Kick_");
     let jid = parsedJid(match);
     await message.kick(jid);
     return await message.reply(`_Removed *@${jid[0].split("@")[0]}* From This Group ✅_`, {
