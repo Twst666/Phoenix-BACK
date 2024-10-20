@@ -172,11 +172,6 @@ await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data))
 				conversation: null,
 			},
 	});
-      
-        setInterval(() => {
-      conn.sendPresenceUpdate('available', conn.user.jid);
-      console.log('Phoenix-MD Is Alive Now ✅');
-         }, 300000);
 	
 	store.bind(conn.ev);
 	setInterval(() => {
@@ -316,38 +311,7 @@ if (config.AUTO_STATUS_READ && msg.key.remoteJid === 'status@broadcast') {
         }
     }, 500);
 }
-	    
-conn.ev.on("call", async (c) => {
-    const callList = await getcall();
-    c = c.map(c => c);
-    c = c[0];
-    let { status, from, id } = c;
-    let frmid;
-
-    // Extract the sender's ID
-    if (from.includes(":")) {
-        frmid = await from.split(":")[0];
-    } else {
-        frmid = await from.split("@")[0];
-    }
-
-    // Check if the sender is in the call list
-    let res = callList.some(item => item.dataValues && item.dataValues.chatId.split("@")[0] === frmid);
-
-    console.log("[Call from: " + frmid + "]");
-
-    // Check call status and config setting
-    if (status === "offer") {
-        // If automatic call rejection is enabled and the sender is not in the call list
-        if (config.AUTO_CALL_REJECT && !res) {
-            await conn.rejectCall(id, from);
-            return conn.sendMessage(from, {
-                text: "Sorry, no calls are allowed. Please use Text or Voice Message\n> Automated System"
-            });
-        }
-    }
-});
-
+	
         events.commands.map(async (command) => {
             if (command.fromMe && !config.SUDO.split(",").includes(msg.sender.split("@")[0] || !msg.isSelf))
                 return;
