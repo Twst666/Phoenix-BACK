@@ -9,7 +9,7 @@ pnix({
 }, async (message) => {
     if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
     let isadmin = await isAdmin(message.jid, message.user, message.client);
-    if (!isadmin) return await message.reply("_* I M Not An Admin!*_");
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
     const data = await message.client.groupInviteCode(message.jid);
     const metadata = await message.client.groupMetadata(message.jid);
     const { subject } = metadata;
@@ -25,12 +25,42 @@ pnix({
     if (!message.isGroup)
     return await message.reply("_*This Command Is Only For Groups!*_");
     let isadmin = await isAdmin(message.jid, message.user, message.client);
-    if (!isadmin) return await message.reply("_* I M Not An Admin!*_");
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
     await message.client.groupRevokeInvite(message.jid);
     const data = await message.client.groupInviteCode(message.jid);
     const metadata = await message.client.groupMetadata(message.jid);
     const { subject } = metadata;
     await message.reply(`╭───❮ *ɢʀᴏᴜᴘ ʟɪɴᴋ ʀᴇꜱᴇᴛᴇᴅ* ❯\n│  *ɢʀᴏᴜᴘ:* ${subject}\n│  *ɴᴇᴡ ɢʀᴏᴜᴘ  ʟɪɴᴋ:* https://chat.whatsapp.com/${data}\n╰─────────────⦁`);
+});
+
+pnix({
+    pattern: 'lock',
+    fromMe: true,
+    desc: "only allow admins to modify the group's settings",
+    type: 'group'
+}, async (message, match) => {
+    if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
+    const meta = await message.client.groupMetadata(message.chat)
+    if (meta.restrict) return await message.reply("_Group Is Already *Locked*_")
+    await message.client.groupSettingUpdate(message.jid, 'locked')
+    return await message.reply("_Group *Locked* Successfully ✅_\n_Now Only Admins Can Modify The Group Settings_")
+});
+
+pnix({
+    pattern: 'unlock ?(.*)',
+    fromMe: true,
+    desc: "allow everyone to modify the group's settings",
+    type: 'group'
+}, async (message, match) => {
+    if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
+    const meta = await message.client.groupMetadata(message.jid);
+    if (!meta.restrict) return await message.reply("_Group Is Already *Unlocked*_")
+    await message.client.groupSettingUpdate(message.jid, 'unlocked')
+    return await message.reply("_Group *Unlocked* Successfully ✅_\n_Now Everyone Can Modify The Group Settings_")
 });
 
 pnix({
@@ -40,6 +70,7 @@ pnix({
 	type: 'group'
 }, async (message) => {
     if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    await message.reply("_*👋 GoodBye Guys I M Leaving This Group*_");
     await message.client.groupLeave(message.jid);
 });
 
@@ -48,26 +79,26 @@ pnix({
     fromMe: true,
     desc: "to join a group",
     type: 'group'
-}, async (message, match) => {
+}, async (message, match, m) => {
     match = match || message.reply_message.text;
-    if (!match) return await message.reply('_Enter a valid group link!_');
-    if (!isUrl(match)) return await message.send('_Enter a valid group link!_');
+    if (!match) return await message.reply(`_Enter A Group Link_\n_📌 Example: *${m.prefix}join https://chat.whatsapp.com/BOLb0ICN3sAJ5dloRBw5VD*_`);
+    if (!isUrl(match)) return await message.reply(`_Enter A Valid Group Link_\n_📌 Example: *${m.prefix}join https://chat.whatsapp.com/BOLb0ICN3sAJ5dloRBw5VD*_`);
 
     // Extract URL using a custom function
     const matchUrl = extractUrlFromMessage(match);
-    if (!matchUrl) return await message.send('_Enter a valid group link!_');
+    if (!matchUrl) return await message.reply(`_Enter A Valid Group Link_\n_📌 Example: *${m.prefix}join https://chat.whatsapp.com/BOLb0ICN3sAJ5dloRBw5VD*_`);
 
     if (matchUrl && matchUrl.includes('chat.whatsapp.com')) {
         const groupCode = matchUrl.split('https://chat.whatsapp.com/')[1];
         const joinResult = await message.client.groupAcceptInvite(groupCode);
 
         if (joinResult) {
-            await message.reply('_Joined!_'); 
+            await message.reply('_I Have Successfully Joined The Group ✅_'); 
         } else {
-            await message.reply('_Invalid Group Link!_'); 
+            await message.reply('_Invalid Group Link_'); 
         }
     } else {
-        await message.reply('_Invalid Group Link!_'); 
+        await message.reply('_Invalid Group Link_'); 
     }
 });
 
@@ -95,7 +126,7 @@ pnix(
 
     const isadmin = await isAdmin(message.jid, message.user, message.client);
 
-    if (!isadmin) return await message.reply("*_I M Not An Admin_*");
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
     const jid = parsedJid(match);
 
     await message.client.groupParticipantsUpdate(message.jid, jid, "add");
@@ -135,9 +166,9 @@ pnix(
   },
   async (message, match) => {
     if (!message.isGroup)
-      return await message.reply("_*This Command Is Only For Groups*_");
+      return await message.reply("_*This Command Is Only For Groups!*_");
     if (!isAdmin(message.jid, message.user, message.client))
-      return await message.reply("*_I M Not An Admin_*");
+      return await message.reply("_*I M Not An Admin!*_");
     match = match || message.reply_message.jid;
     if (!match) return await message.reply("_Mention A User To Promote As Admin_");
     let jid = parsedJid(match);
