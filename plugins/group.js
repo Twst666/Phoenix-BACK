@@ -1,9 +1,9 @@
 const config = require("../config");
-const { pnix, isAdmin, parsedJid, isUrl } = require("../lib/");
+const { pnix, isPrivate, isAdmin, parsedJid, isUrl } = require("../lib/");
 
 pnix(
   {
-    pattern: "add ?(.*)",
+    pattern: "add",
     fromMe: true,
     desc: "add a person to group",
     type: "group",
@@ -30,7 +30,7 @@ pnix(
 
 pnix(
   {
-    pattern: "kick ?(.*)",
+    pattern: "kick",
     fromMe: true,
     type: "group",
   },
@@ -50,7 +50,7 @@ pnix(
 
 pnix(
   {
-    pattern: "promote ?(.*)",
+    pattern: "promote",
     fromMe: true,
     type: "group",
   },
@@ -120,7 +120,7 @@ pnix(
 
 pnix(
   {
-    pattern: "tagall ?(.*)",
+    pattern: "tagall",
     fromMe: isPrivate,
     type: "group",
   },
@@ -149,11 +149,11 @@ pnix(
       return await message.reply("_*This Command Is Only For Groups!*_");
     let { participants } = await client.groupMetadata(message.jid);
     let participant = participants.map((u) => u.id);
-    let str = "╭──〔 *Group Jids* 〕\n";
+    let str = "╭───❮ *ɢʀᴏᴜᴘ ᴊɪᴅs* ❯\n";
     participant.forEach((result) => {
-      str += `├ *${result}*\n`;
+      str += `│  *${result}*\n`;
     });
-    str += `╰──────────────`;
+    str += `╰─────────────⦁`;
     message.reply(str);
   }
 );
@@ -163,7 +163,7 @@ pnix({
     fromMe: true,
     desc: "Mute group",
     type: "group"
-}, async (message, match, _, client) => {
+}, async (message, match, m, client) => {
     if (!message.isGroup) {
         return await message.reply("_*This Command Is Only For Groups!*_");
     }
