@@ -49,17 +49,10 @@ if(!store.diamond) store.diamond = {
 	}
 const express = require("express");
 const app = express();
-const http = require('http');
 const port = process.env.PORT || 3000;
 const more = String.fromCharCode(8206)
 const readMore = more.repeat(4001)
 require("events").EventEmitter.defaultMaxListeners = 0;
-
-const server = http.createServer(app);
-
-server.listen(port, () => {
-  logger.info(`Phoenix-MD Server is listening on port ${port}`);
-});
 
 const nodemailer = require('nodemailer');
 
@@ -397,3 +390,5 @@ setTimeout(() => {
 app.get("/", (req, res) => {
 	res.send("Hello Phoenix-MD Started");
 });
+
+app.listen(port, () => console.log(`Phoenix-MD Server Listening On Port http://localhost:${port}`));
