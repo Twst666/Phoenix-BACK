@@ -26,7 +26,48 @@ pnix({
     await message.client.groupLeave(message.jid);
 });
 
-        
+pnix({
+    pattern: 'join',
+    fromMe: true,
+    desc: "to join a group",
+    type: 'group'
+}, async (message, match) => {
+    match = match || message.reply_message.text;
+    if (!match) return await message.reply('_Enter a valid group link!_');
+    if (!isUrl(match)) return await message.send('_Enter a valid group link!_');
+
+    // Extract URL using a custom function
+    const matchUrl = extractUrlFromMessage(match);
+    if (!matchUrl) return await message.send('_Enter a valid group link!_');
+
+    if (matchUrl && matchUrl.includes('chat.whatsapp.com')) {
+        const groupCode = matchUrl.split('https://chat.whatsapp.com/')[1];
+        const joinResult = await message.client.groupAcceptInvite(groupCode);
+
+        if (joinResult) {
+            await message.reply('_Joined!_'); 
+
+            // Send a message to the group after joining
+            await message.client.sendMessage(
+                joinResult, 
+                `_Hey Its Me *Phoenix-MD WhatsApp Bot* Here!_\n_I Have Invited By *${m.sender}*\nType *${m.prefix}menu* To Get My Command List!`
+            );
+        } else {
+            await message.reply('_Invalid Group Link!_'); 
+        }
+    } else {
+        await message.reply('_Invalid Group Link!_'); 
+    }
+});
+
+// Function to extract URL from text
+function extractUrlFromMessage(text) {
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    const urls = text.match(urlPattern);
+    return urls ? urls[0] : null;
+}
+
+
 pnix(
   {
     pattern: "add",
