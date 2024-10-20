@@ -1,10 +1,10 @@
 const config = require("../config");
-const { pnix, isPrivate, isAdmin, parsedJid, isUrl } = require("../lib/");
+const { pnix, isAdmin, parsedJid, isUrl } = require("../lib/");
 
 pnix(
   {
     pattern: "add ?(.*)",
-    fromMe: isPrivate,
+    fromMe: true,
     desc: "add a person to group",
     type: "group",
   },
@@ -31,7 +31,7 @@ pnix(
 pnix(
   {
     pattern: "kick ?(.*)",
-    fromMe: isPrivate,
+    fromMe: true,
     type: "group",
   },
   async (message, match) => {
@@ -51,7 +51,7 @@ pnix(
 pnix(
   {
     pattern: "promote ?(.*)",
-    fromMe: isPrivate,
+    fromMe: true,
     type: "group",
   },
   async (message, match) => {
@@ -60,7 +60,7 @@ pnix(
     if (!isAdmin(message.jid, message.user, message.client))
       return await message.reply("*_I M Not An Admin_*");
     match = match || message.reply_message.jid;
-    if (!match) return await message.reply("_Mention A User To Promote_");
+    if (!match) return await message.reply("_Mention A User To Promote As Admin_");
     let jid = parsedJid(match);
     await message.promote(jid);
     return await message.reply(`_*@${jid[0].split("@")[0]}* Promoted As An Admin ✅_`, {
@@ -72,7 +72,7 @@ pnix(
 pnix(
   {
     pattern: "demote",
-    fromMe: isPrivate,
+    fromMe: true,
     desc: "demote a member",
     type: "group",
   },
@@ -80,7 +80,7 @@ pnix(
     if (!message.isGroup)
       return await message.reply("_*This Command Is Only For Groups!*_");
     match = match || message.reply_message.jid;
-    if (!match) return await message.reply("_Mention A User To Demote");
+    if (!match) return await message.reply("_Mention A User To Demote From Admin_");
     let isadmin = await isAdmin(message.jid, message.user, message.client);
     if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
     let jid = parsedJid(match);
@@ -160,7 +160,7 @@ pnix(
 
 pnix({
     pattern: "mute",
-    fromMe: isPrivate,
+    fromMe: true,
     desc: "Mute group",
     type: "group"
 }, async (message, match, _, client) => {
@@ -169,7 +169,7 @@ pnix({
     }
 
     if (!isAdmin(message.jid, message.user, client)) {
-        return await message.reply("_*This Command Is Only For Admins!*_");
+        return await message.reply("_*I M Not An Admin!*_");
     }
 
     await message.reply("_Muting Group..._");
@@ -179,13 +179,13 @@ pnix({
 pnix(
   {
     pattern: "unmute",
-    fromMe: isPrivate,
+    fromMe: true,
     desc: "unmute group",
     type: "group",
   },
   async (message, match, m, client) => {
     if (!message.isGroup)
-      return await message.reply("_*This Command Is Only For Admins!*_");
+      return await message.reply("_*This Command Is Only For Groups!*_");
     if (!isAdmin(message.jid, message.user, message.client))
       return await message.reply("_*I M Not An Admin!*_");
     await message.reply("_Unmuting Group..._");
