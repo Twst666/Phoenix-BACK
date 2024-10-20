@@ -46,12 +46,6 @@ pnix({
 
         if (joinResult) {
             await message.reply('_Joined!_'); 
-
-            // Send a message to the group after joining
-            await message.client.sendMessage(
-                joinResult, 
-                `_Hey Its Me *Phoenix-MD WhatsApp Bot* Here!_\n_I Have Invited By *${m.sender}*\nType *${m.prefix}menu* To Get My Command List!`
-            );
         } else {
             await message.reply('_Invalid Group Link!_'); 
         }
