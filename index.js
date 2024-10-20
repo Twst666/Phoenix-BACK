@@ -179,7 +179,12 @@ await fs.writeFileSync("./lib/phoenix/session/creds.json", JSON.stringify(data))
 				conversation: null,
 			},
 	});
-
+      
+        setInterval(() => {
+      conn.sendPresenceUpdate('available', conn.user.jid);
+      console.log('Phoenix-MD Is Alive Now ✅');
+         }, 300000);
+	
 	store.bind(conn.ev);
 	setInterval(() => {
 		store.writeToFile("./lib/Db/store.json");
