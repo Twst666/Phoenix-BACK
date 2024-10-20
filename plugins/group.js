@@ -14,6 +14,17 @@ pnix({
     return await message.reply(`https://chat.whatsapp.com/${data}`);
 });
 
+pnix({
+	pattern: 'left',
+	fromMe: true,
+	desc: 'Left from group',
+	type: 'group'
+}, async (message) => {
+    if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    await message.client.groupLeave(message.jid);
+});
+
+        
 pnix(
   {
     pattern: "add",
