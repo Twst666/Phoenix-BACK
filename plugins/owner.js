@@ -32,7 +32,7 @@ pnix(
         if (err) {
           return await message.reply(`\`\`\`${stderr}\`\`\``);
         }
-        await message.reply("_*ᴘʜᴏᴇɴɪx-ᴍᴅ ᴜᴘᴅᴀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!*\n_*ʀᴇꜱᴛᴀʀᴛɪɴɢ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...*_");
+        await message.reply("_*ᴘʜᴏᴇɴɪx-ᴍᴅ ᴜᴘᴅᴀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!*_\n_*ʀᴇꜱᴛᴀʀᴛɪɴɢ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...*_");
 
         const dependencyUpdated = await updatedDependencies();
         const restartCommand = dependencyUpdated ? 
@@ -52,7 +52,7 @@ pnix(
           "_*ᴘʜᴏᴇɴɪx-ᴍᴅ ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴏɴ ᴛʜᴇ ʟᴀᴛᴇꜱᴛ ᴠᴇʀꜱɪᴏɴ*_"
         );
       } else {
-        let changes = "*ɴᴇᴡ ᴜᴘᴅᴀᴛᴇ ɪꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ꜰᴏʀ ᴘʜᴏᴇɴɪx-ᴍᴅ*\n\n";
+        let changes = `*ɴᴇᴡ ᴜᴘᴅᴀᴛᴇ ɪꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ꜰᴏʀ ᴘʜᴏᴇɴɪx-ᴍᴅ*\n\n`;
         commits.all.forEach((commit, index) => {
           changes += `${index + 1} ●  Uᴘᴅᴀᴛᴇ ${commit.message}\n`;
         });
