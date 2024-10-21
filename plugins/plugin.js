@@ -2,50 +2,12 @@ const {
   pnix,
   getBuffer,
 } = require("../lib");
-const axios = require("axios");
-const { exec } = require("child_process");
+const axios = require('axios');
+const { exec } = require('child_process');
 const fs = require('fs');
 const { PluginDB, installPlugin } = require("../lib/database/plugins");
 const got = require("got");
 const X = require("../config");
-// Function to fetch and send all plugins
-pnix({
-  pattern: "allplugin",
-  fromMe: true,
-  desc: "To get all external plugins of Phoenix-MD",
-  type: "owner"
-}, async (message, match, m) => {
-  try {
-    const response = await axios.get(`${X.BASE_URL}api/phoenix/allplugin`);
-    const plugins = response.data;
-
-    const pluginList = Object.entries(plugins)
-      .map(([name, { url }]) => `*${name}:* ${url}`)
-      .join("\n\n");
-
-    const thumbnail = await getBuffer("https://i.ibb.co/tHWJrz3/IMG-20231128-WA0005.jpg");
-
-    const replyMessage = {
-      text: pluginList,
-      contextInfo: {
-        externalAdReply: {
-          title: "ᴘʜᴏᴇɴɪx-ᴍᴅ ᴇxᴛᴇʀɴᴀʟ ᴘʟᴜɢɪɴꜱ",
-          body: "ʙʏ ᴀʙʜɪꜱʜᴇᴋ ꜱᴜʀᴇꜱʜ",
-          thumbnail: thumbnail,
-          mediaType: 1,
-          mediaUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
-          sourceUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
-          showAdAttribution: false
-        }
-      }
-    };
-
-    await message.client.sendMessage(message.jid, replyMessage, { quoted: m });
-  } catch (error) {
-    console.error("Error fetching plugin data:", error);
-    await message.reply("Error fetching plugin data");
-  }
-});
 
 pnix({
   pattern: "plugin ?(.*)",
@@ -88,7 +50,44 @@ pnix({
   }
 });
 
-// Function to list installed plugins
+pnix({
+  pattern: "allplugin",
+  fromMe: true,
+  desc: "To get all external plugins of Phoenix-MD",
+  type: "owner"
+}, async (message, match, m) => {
+  try {
+    const response = await axios.get(`${X.BASE_URL}api/phoenix/allplugin`);
+    const plugins = response.data;
+
+    const pluginList = Object.entries(plugins)
+      .map(([name, { url }]) => `*${name}:* ${url}`)
+      .join("\n\n");
+
+    const thumbnail = await getBuffer("https://i.ibb.co/tHWJrz3/IMG-20231128-WA0005.jpg");
+
+    const replyMessage = {
+      text: pluginList,
+      contextInfo: {
+        externalAdReply: {
+          title: "ᴘʜᴏᴇɴɪx-ᴍᴅ ᴇxᴛᴇʀɴᴀʟ ᴘʟᴜɢɪɴꜱ",
+          body: "ʙʏ ᴀʙʜɪꜱʜᴇᴋ ꜱᴜʀᴇꜱʜ",
+          thumbnail: thumbnail,
+          mediaType: 1,
+          mediaUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
+          sourceUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
+          showAdAttribution: false
+        }
+      }
+    };
+
+    await message.client.sendMessage(message.jid, replyMessage, { quoted: m });
+  } catch (error) {
+    console.error("Error fetching plugin data:", error);
+    await message.reply("Error fetching plugin data");
+  }
+});
+
 pnix({
   pattern: "listplugin",
   fromMe: true,
