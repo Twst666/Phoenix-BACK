@@ -24,7 +24,7 @@ pnix(
   async (message, match, m) => {
     try {
       // Get the song name or URL from the message or quoted text
-      const play = match || m.quoted?.text;
+      const play = match || message.reply_message.text;
       
       // If no song name or URL is provided, prompt the user
       if (!play) {
@@ -67,8 +67,8 @@ pnix(
       await message.client.sendMessage(message.jid, doc, { quoted: m });
 
     } catch (error) {
-      // Catch and respond to any errors during the process
-      message.reply(`_Can't Find The Song? Try Searching It With The Name Of The Artist_\n_📌 Example: *${m.prefix}song Heat Waves Glass Animals*_`);
+      await message.client.sendMessage(message.jid, { react: { text: "❌", key: m.key } });
+      message.reply(`_An Error Occurred_`);
     }
   }
 );
@@ -81,21 +81,19 @@ pnix(
   },
   async (message, match, m) => {
     try {
-      // Send "⬇️" emoji as a reaction initially
-      await message.client.sendMessage(message.jid, { react: { text: "⬇️", key: m.key } });
 
-const img = match || m.quoted.text
+      const img = match || message.reply_message.text;
 
       if (!img) {
         return await message.reply(`_Enter A Text And Number Of Images You Want_\n_📌 _Example: *${m.prefix}img Pheonix MD;6*_`);
       }
 
+      await message.client.sendMessage(message.jid, { react: { text: "⬇️", key: m.key } });
+      
       let [query, amount] = img.split(";");
       const result = await fetchImages(query, amount);
 
-      // Send "✅" emoji as a reaction after successful fetching
-      await message.client.sendMessage(message.jid, { react: { text: "✅", key: m.key } });
-      await message.reply(`_⬇️Downloading... ${amount || 5} Images For ${query}_`);
+      await message.reply(`_⬇️ Downloading *${amount || 5}* Images For *${query}*..._`);
 
       const shuffledImages = shuffleArray(result); // Shuffle the array of image URLs
       for (let imageUrl of shuffledImages) {
@@ -143,3 +141,54 @@ async function gimage(query, amount = 5) {
                     });
                 });
             };
+
+
+pnix({
+    pattern: '(insta|ig)',
+    fromMe: isPrivate,
+    desc: 'Download Instagram Post/Reel',
+    type: 'downloader',
+}, async (message, match, m) => {
+    const url = match || message.reply_message.text;
+    
+    if (!url) {
+        return await message.reply(`_Enter An Instagram Post/Reel Url\n_📌 Example: *${m.prefix}insta https://www.instagram.com/p/CcPUubloTnz/?utm_source=ig_web_copy_link*_`);
+    }
+
+    // Notify the user that the download process has started
+    const downloadMessage = await message.reply('_⬇️ Downloading..._');
+
+    try {
+        const response = await axios.get(`https://api-aswin-sparky.koyeb.app/api/downloader/igdl?url=${url}`);
+        const { status, data } = response.data;
+
+        if (status && data.length > 0) {
+            const media = data[0];
+            const mediaUrl = media.url;
+            const caption = "_*ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴘʜᴏᴇɴɪx-ᴍᴅ*_";
+
+            if (media.type === 'image') {
+                await message.client.sendMessage(message.jid, { image: { url: mediaUrl }, caption });
+            } else if (media.type === 'video') {
+                await message.client.sendMessage(message.jid, { video: { url: mediaUrl }, caption });
+            } else {
+                await message.reply('Media type not supported.');
+            }
+        } else {
+            await message.reply('Failed to retrieve media from the provided URL.');
+        }
+
+        // Edit the initial message to indicate download completion
+        await message.sendMessage('_Download Completed!_', { edit: downloadMessage.key }, "text");
+
+    } catch (error) {
+        console.error('Error fetching media:', error);
+
+        // Edit the download message to indicate an error occurred
+        await message.sendMessage(
+            `_❌ An Error Occurred. Please Report This Error Using ${m.prefix}rbug Command_`, 
+            { edit: downloadMessage.key }, 
+            "text"
+        );
+    }
+});
