@@ -48,7 +48,7 @@ pnix({
 });
 
 pnix({
-  pattern: "plugin",
+  pattern: "plugin ?(.*)",
   fromMe: true,
   type: "owner"
 }, async (message, match) => {
@@ -105,7 +105,7 @@ pnix({
 });
 
 pnix({
-  pattern: "remove",
+  pattern: "remove(?: |$)(.*)",
   fromMe: true,
   type: "owner"
 }, async (message, match, m) => {
