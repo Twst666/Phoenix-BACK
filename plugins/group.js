@@ -97,12 +97,12 @@ pnix({
     if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
     if(match && match === "remove") {
         await message.client.removeProfilePicture(message.jid);
-        return await message.reply("_Group Profile Picture Removed_");
+        return await message.reply("_Group Profile Picture Removed Successfully ✅_");
     }
     if (!message.reply_message?.image) return await message.reply("_Reply To A Photo_");
     const media = await message.reply_message.download();
     await message.client.updateProfile(media, message.jid);
-    return await message.reply("_Group Profile Picture Updated_");
+    return await message.reply("_Group Profile Picture Updated Successfully ✅_");
 });
 
 pnix({
