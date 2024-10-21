@@ -244,4 +244,42 @@ pnix({
         );
     }
 });
-     
+  
+pnix({
+    pattern: 'tiktok',
+    fromMe: isPrivate,
+    desc: 'Download TikTok Video',
+    type: 'downloader',
+}, async (message, match, m) => {
+    const url = match || message.reply_message.text;
+
+    if (!url) {
+        return await message.reply(`_Enter A TikTok Video Url_\n_📌 Example: *${m.prefix}tiktok https://www.tiktok.com/@sedboy.am/video/7242762638311050539*_`);
+    }
+
+    const downloadMessage = await message.reply('_⬇️ Downloading..._');
+
+    try {
+        const response = await axios.get(`${X.BASE_URL}api/download/tiktok?url=${url}`);
+        const { status, result } = response.data;
+
+        if (status && result.nowm) {
+            const mediaUrl = result.nowm;
+            const caption = "_*ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴘʜᴏᴇɴɪx-ᴍᴅ*_";
+          
+            await message.client.sendMessage(message.jid, { video: { url: mediaUrl }, caption });
+            await message.sendMessage('_Download Completed!_', { edit: downloadMessage.key }, "text");
+        } else {
+            await message.reply('Failed to retrieve media from the provided URL.');
+        }
+
+    } catch (error) {
+        console.error('Error fetching media:', error);
+
+        await message.sendMessage(
+            `_❌ An Error Occurred. Please Report This Error Using ${m.prefix}rbug Command_`, 
+            { edit: downloadMessage.key }, 
+            "text"
+        );
+    }
+});
