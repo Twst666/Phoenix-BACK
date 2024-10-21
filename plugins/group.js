@@ -1,39 +1,6 @@
 const config = require("../config");
 const { pnix, isPrivate, isAdmin, parsedJid, isUrl } = require("../lib/");
 const Jimp = require("jimp");
-
-async function updateProfilePicture(jid, imag, message) {
-  const { query } = message.client;
-  const { img } = await generateProfilePicture(imag);
-  await query({
-    tag: "iq",
-    attrs: {
-      to: jid,
-      type: "set",
-      xmlns: "w:profile:picture",
-    },
-    content: [
-      {
-        tag: "picture",
-        attrs: { type: "image" },
-        content: img,
-      },
-    ],
-  });
-}
-
-async function generateProfilePicture(buffer) {
-  const jimp = await Jimp.read(buffer);
-  const min = jimp.getWidth();
-  const max = jimp.getHeight();
-  const cropped = jimp.crop(0, 0, min, max);
-  return {
-    img: await cropped.scaleToFit(324, 720).getBufferAsync(Jimp.MIME_JPEG),
-    preview: await cropped.normalize().getBufferAsync(Jimp.MIME_JPEG),
-  };
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						  
 pnix({
     pattern: 'invite',
@@ -83,9 +50,40 @@ pnix({
     }
     if (!message.reply_message?.image) return await message.reply("_Reply To A Photo_");
     const media = await m.quoted.download();
-    await message.client.updateProfile(media, message.jid);
+    await message.client.updateProfilePicture(message.jid, media);
     return await message.reply("_Group Profile Picture Updated Successfully ✅_");
 });
+
+async function updateProfilePicture(jid, imag, message) {
+  const { query } = message.client;
+  const { img } = await generateProfilePicture(imag);
+  await query({
+    tag: "iq",
+    attrs: {
+      to: jid,
+      type: "set",
+      xmlns: "w:profile:picture",
+    },
+    content: [
+      {
+        tag: "picture",
+        attrs: { type: "image" },
+        content: img,
+      },
+    ],
+  });
+}
+
+async function generateProfilePicture(buffer) {
+  const jimp = await Jimp.read(buffer);
+  const min = jimp.getWidth();
+  const max = jimp.getHeight();
+  const cropped = jimp.crop(0, 0, min, max);
+  return {
+    img: await cropped.scaleToFit(324, 720).getBufferAsync(Jimp.MIME_JPEG),
+    preview: await cropped.normalize().getBufferAsync(Jimp.MIME_JPEG),
+  };
+}
 
 pnix({
 	pattern: 'gname',
