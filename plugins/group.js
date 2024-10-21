@@ -22,7 +22,7 @@ pnix({
     fromMe: true,
     desc: "mention all users in the group",
     type: "group",
-}, async (message, match) => {.
+}, async (message, match) => {
     if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
     const { participants } = await message.client.groupMetadata(message.jid).catch(e => {});
     let admins = await participants.filter(v => v.admin !== null).map(v => v.id);
@@ -44,23 +44,17 @@ pnix({
     } 
     else if (match || message.reply_message.text) {
         match = match || message.reply_message.text;
-        if (!match) return await message.reply(`_Reply To A Message/📌 Use:_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag admin*_\n_*${m.prefix}tag notadmin*_\n_*${m.prefix}tag text*_`);
+        if (!match) return await message.reply(`_Reply To A Message/📌 Use:_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag admin*_\n_*${m.prefix}tag me*_\n_*${m.prefix}tag text*_`);
         await message.sendMessage(match, { mentions: participants.map(a => a.id) });
-    } else if (match == 'notadmin' || match == 'not admins') {
-      let mesaj = ''
-      const mentionedJid = participants.filter((user) => !!user.admin != true).map(({ id }) => id)
-      mentionedJid.forEach((e) => (mesaj += `@${e.split('@')[0]}\n`))
-      return await message.sendMessage(mesaj.trim(), {
-        contextInfo: { mentionedJid },
-      })
-    }
+    } 
     else if (message.reply_message.id) {
         return await message.sendMessage(message.jid, message.reply_message.message, { contextInfo: { mentionedJid: participants.map(a => a.id) } });
     } 
     else {
-        return await message.reply(`_Reply To A Message/📌 Use:_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag admin*_\n_*${m.prefix}tag notadmin*_\n_*${m.prefix}tag text*_`);
+        return await message.reply(`_Reply To A Message/📌 Use:_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag admin*_\n_*${m.prefix}tag me*_\n_*${m.prefix}tag text*_`);
     }
 });
+
 
 pnix({
     pattern: 'revoke',
