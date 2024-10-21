@@ -1,5 +1,77 @@
 const { pnix, parsedJid } = require('../lib');
 const { downloadMediaMessage } = require("@whiskeysockets/baileys");
+const config = require("../config");
+const { exec } = require("child_process");
+const simplegit = require("simple-git");
+const git = simplegit();
+const BRANCH = config.BRANCH;
+const PROCESSNAME = "Phoenix-MD";
+
+pnix(
+  {
+    pattern: "update",
+    fromMe: true,
+    desc: "Update the bot",
+    type: "user",
+  },
+  async (message, match, m) => {
+    await exec(`git config user.name "AbhishekSuresh2"`);
+    await exec(`git config user.email "AbhishekSuresh2030@gmail.com"`);
+
+    await git.fetch();
+    const commits = await git.log([`${BRANCH}..origin/${BRANCH}`]);
+
+    if (match === "now") {
+      if (commits.total === 0) {
+        return await message.reply(
+          "_*ᴘʜᴏᴇɴɪx-ᴍᴅ ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴏɴ ᴛʜᴇ ʟᴀᴛᴇꜱᴛ ᴠᴇʀꜱɪᴏɴ*_"
+        );
+      }
+      await message.reply("_*ᴜᴘᴅᴀᴛɪɴɢ ᴘʜᴏᴇɴɪx-ᴍᴅ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...*_");
+      await exec(`git stash && git pull origin ${BRANCH}`, async (err, stdout, stderr) => {
+        if (err) {
+          return await message.reply(`\`\`\`${stderr}\`\`\``);
+        }
+        await message.reply("_*ᴘʜᴏᴇɴɪx-ᴍᴅ ᴜᴘᴅᴀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ!*\n_*ʀᴇꜱᴛᴀʀᴛɪɴɢ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...*_");
+
+        const dependencyUpdated = await updatedDependencies();
+        const restartCommand = dependencyUpdated ? 
+          `npm install && pm2 restart ${PROCESSNAME}` : 
+          `pm2 restart ${PROCESSNAME}`;
+
+        exec(restartCommand, async (err, stdout, stderr) => {
+          if (err) {
+            return await message.reply(`\`\`\`${stderr}\`\`\``);
+          }
+          await message.reply("_*ʀᴇꜱᴛᴀʀᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ*_");
+        });
+      });
+    } else {
+      if (commits.total === 0) {
+        return await message.reply(
+          "_*ᴘʜᴏᴇɴɪx-ᴍᴅ ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴏɴ ᴛʜᴇ ʟᴀᴛᴇꜱᴛ ᴠᴇʀꜱɪᴏɴ*_"
+        );
+      } else {
+        let changes = "*ɴᴇᴡ ᴜᴘᴅᴀᴛᴇ ɪꜱ ᴀᴠᴀɪʟᴀʙʟᴇ ꜰᴏʀ ᴘʜᴏᴇɴɪx-ᴍᴅ*\n\n";
+        commits.all.forEach((commit, index) => {
+          changes += `${index + 1} ●  Uᴘᴅᴀᴛᴇ ${commit.message}\n`;
+        });
+        changes += `\n _ᴛʏᴘᴇ *${m.prefix}update now* ᴛᴏ ᴜᴘᴅᴀᴛᴇ_`;
+        await message.reply(changes);
+      }
+    }
+  }
+);
+
+async function updatedDependencies() {
+  try {
+    const diff = await git.diff([`${BRANCH}..origin/${BRANCH}`]);
+    return diff.includes('"dependencies":');
+  } catch (error) {
+    console.error("Error occurred while checking package.json:", error);
+    return false;
+  }
+}
 
 pnix(
   {
