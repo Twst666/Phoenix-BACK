@@ -89,6 +89,19 @@ pnix(
 );
 
 pnix(
+    {
+	pattern: 'setbio(.*)',
+	fromMe: true,
+	desc: 'to change your profile status',
+	type: 'user'
+}, async (message, match, m) => {
+	match = match || message.reply_message.text
+	if (!match) return await message.reply(`*_Need Text_!*\n_📌 Example: *${m.prefix}setbio Phoenix-MD WhatsApp Bot*_`)
+	await message.client.updateProfileStatus(match)
+	await message.reply(`_Username Updated To: *${match}* ✅_`)
+})
+
+pnix(
   {
     pattern: "setname",
     fromMe: true,
@@ -97,7 +110,7 @@ pnix(
   async (message, match, m) => {
     if (!match) return await message.reply(`_Enter A Text_\n_📌 Example: *${m.prefix}setname Phoenix-MD*_`);
     await message.updateName(match);
-    return await message.reply(`_Username Updated To: ${match} ✅_`);
+    return await message.reply(`_Username Updated To: *${match}* ✅_`);
   }
 );
 
