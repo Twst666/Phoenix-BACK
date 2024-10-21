@@ -192,3 +192,56 @@ pnix({
         );
     }
 });
+
+pnix({
+    pattern: 'fb',
+    fromMe: isPrivate,
+    desc: 'Download Facebook Video or Image',
+    type: 'downloader',
+}, async (message, match, m) => {
+    const url = match || message.reply_message.text;
+
+    if (!url) {
+        return await message.reply(`_Enter A Facebook Post Url_\n_📌 Example: *${m.prefix}fb https://www.facebook.com/FoodMakersBr/videos/tire-o-feijão-do-pote-de-sorvete-e-faça-essa-receita-ainda-hoje/454262112817834/*_`);
+    }
+
+    // Notify the user that the download process has started
+    const downloadMessage = await message.reply('_⬇️ Downloading..._');
+
+    try {
+        const response = await axios.get(`${X.BASE_URL}api/download/fb?url=${url}`);
+        const { status, result } = response.data;
+
+        if (status && result.hd) {
+            const mediaUrl = result.hd;
+
+            // Check if the media URL contains "mp4" to determine if it's a video
+            const isVideo = mediaUrl.includes('mp4');
+            const caption = "_*ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴘʜᴏᴇɴɪx-ᴍᴅ*_";
+
+            if (isVideo) {
+                // Send the video file
+                await message.client.sendMessage(message.jid, { video: { url: mediaUrl }, caption });
+            } else {
+                // Send the image file
+                await message.client.sendMessage(message.jid, { image: { url: mediaUrl }, caption });
+            }
+
+            // Edit the initial message to indicate download completion
+            await message.sendMessage('_Download Completed!_', { edit: downloadMessage.key }, "text");
+        } else {
+            await message.reply('Failed to retrieve media from the provided URL.');
+        }
+
+    } catch (error) {
+        console.error('Error fetching media:', error);
+
+        // Edit the download message to indicate an error occurred
+        await message.sendMessage(
+            `_❌ An Error Occurred. Please Report This Error Using ${m.prefix}rbug Command_`, 
+            { edit: downloadMessage.key }, 
+            "text"
+        );
+    }
+});
+     
