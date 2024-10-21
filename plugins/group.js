@@ -18,6 +18,51 @@ pnix({
 });
 
 pnix({
+    pattern: "tag",
+    fromMe: true,
+    desc: "mention all users in the group",
+    type: "group",
+}, async (message, match) => {.
+    if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
+    const { participants } = await message.client.groupMetadata(message.jid).catch(e => {});
+    let admins = await participants.filter(v => v.admin !== null).map(v => v.id);
+    let msg = "";
+    if (match === "all" || match === "everyone") {
+        for (let i = 0; i < participants.length; i++) {
+            msg += `${i + 1}. @${participants[i].id.split('@')[0]}\n`;
+        }
+        await message.sendMessage(msg, { mentions: participants.map(a => a.id) });
+    } 
+    else if (match === "admin" || match === "admins") {
+        for (let i = 0; i < admins.length; i++) {
+            msg += `${i + 1}. @${admins[i].split('@')[0]}\n`;
+        }
+        return await message.sendMessage(msg, { mentions: participants.map(a => a.id) });
+    } 
+    else if (match === "me" || match === "mee") {
+        await message.client.sendMessage(message.jid, { text: `@${m.sender.split("@")[0]}`, mentions: [m.sender] });
+    } 
+    else if (match || message.reply_message.text) {
+        match = match || message.reply_message.text;
+        if (!match) return await message.reply(`_Reply To A Message/📌 Use:_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag admin*_\n_*${m.prefix}tag notadmin*_\n_*${m.prefix}tag text*_`);
+        await message.sendMessage(match, { mentions: participants.map(a => a.id) });
+    } else if (match == 'notadmin' || match == 'not admins') {
+      let mesaj = ''
+      const mentionedJid = participants.filter((user) => !!user.admin != true).map(({ id }) => id)
+      mentionedJid.forEach((e) => (mesaj += `@${e.split('@')[0]}\n`))
+      return await message.sendMessage(mesaj.trim(), {
+        contextInfo: { mentionedJid },
+      })
+    }
+    else if (message.reply_message.id) {
+        return await message.sendMessage(message.jid, message.reply_message.message, { contextInfo: { mentionedJid: participants.map(a => a.id) } });
+    } 
+    else {
+        return await message.reply(`_Reply To A Message/📌 Use:_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag all*_\n_*${m.prefix}tag admin*_\n_*${m.prefix}tag notadmin*_\n_*${m.prefix}tag text*_`);
+    }
+});
+
+pnix({
     pattern: 'revoke',
     fromMe: true,
     desc: "Revoke Group invite link.",
@@ -48,7 +93,7 @@ pnix({
         await message.client.removeProfilePicture(message.jid);
         return await message.reply("_Group Profile Picture Removed Successfully ✅_");
     }
-    if (!message.reply_message?.image) return await message.reply("_Reply To A Photo_");
+    if (!message.reply_message?.image) return await message.reply(`_Reply To A Photo\n📌 Use *${m.prefix}gpp remove* To Remove The Group Profile Picture_`);
     const media = await m.quoted.download();
     await message.client.updateProfilePicture(message.jid, media);
     return await message.reply("_Group Profile Picture Updated Successfully ✅_");
@@ -318,26 +363,6 @@ pnix(
           return await message.reply("_*I M Not An Admin!*_");
         }
       }
-  }
-);
-
-pnix(
-  {
-    pattern: "tagall",
-    fromMe: isPrivate,
-    type: "group",
-  },
-  async (message, match) => {
-    if (!message.isGroup)
-    return await message.reply("_*This Command Is Only For Groups!*_");
-    const { participants } = await message.client.groupMetadata(message.jid);
-    let teks = "";
-    for (let mem of participants) {
-      teks += ` @${mem.id.split("@")[0]}\n`;
-    }
-    message.sendMessage(teks.trim(), {
-      mentions: participants.map((a) => a.id),
-    });
   }
 );
 
