@@ -2,26 +2,6 @@ const config = require("../config");
 const { pnix, isPrivate, isAdmin, parsedJid, isUrl } = require("../lib/");
 const Jimp = require("jimp");
 
-pnix({
-    pattern: "gpp",
-    fromMe: true,
-    desc: "Set full-screen profile picture",
-    type: "group",
-}, async (message, match, m) => {  
-    if (!message.isGroup)
-    return await message.reply("_*This Command Is Only For Groups!*_");
-    let isadmin = await isAdmin(message.jid, message.user, message.client);
-    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
-    if(match && match === "remove") {
-        await message.client.removeProfilePicture(message.jid);
-        return await message.reply("_Group Profile Picture Removed_");
-    }
-    if (!message.reply_message?.image) return await message.reply(`_Reply To A Photo/Use *${m.prefix}gpp remove* To Remove Group Profile Picture_`);
-    const media = await message.reply_message.download();
-    await message.client.updateProfilePicture(message.jid, media);
-    return await message.reply("_Group Profile Picture Updated_");
-});
-
 async function updateProfilePicture(jid, imag, message) {
   const { query } = message.client;
   const { img } = await generateProfilePicture(imag);
@@ -52,6 +32,8 @@ async function generateProfilePicture(buffer) {
     preview: await cropped.normalize().getBufferAsync(Jimp.MIME_JPEG),
   };
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 						  
 pnix({
     pattern: 'invite',
@@ -90,7 +72,7 @@ pnix({
     fromMe: true,
     desc: "Set full-screen profile picture",
     type: "group",
-}, async (message, match) => {  
+}, async (message, match, m) => {  
     if (!message.isGroup)
     return await message.reply("_*This Command Is Only For Groups!*_");
     let isadmin = await isAdmin(message.jid, message.user, message.client);
@@ -100,7 +82,7 @@ pnix({
         return await message.reply("_Group Profile Picture Removed Successfully ✅_");
     }
     if (!message.reply_message?.image) return await message.reply("_Reply To A Photo_");
-    const media = await message.reply_message.download();
+    const media = await m.quoted.download();
     await message.client.updateProfile(media, message.jid);
     return await message.reply("_Group Profile Picture Updated Successfully ✅_");
 });
