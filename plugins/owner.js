@@ -180,7 +180,7 @@ pnix({
   }
 
   const [content, countStr] = match.split(';');
-  const count = parseInt(countStr) || Config.SPAM_COUNT;
+  const count = parseInt(countStr) || config.SPAM_COUNT;
 
   if (isNaN(count) || count < 1) {
     return await message.reply(`_Enter A Valid Repeat Count_\n_📌 Example: *${m.prefix}spam I M Phoenix-MD;3*_`);
@@ -203,7 +203,7 @@ pnix({
   const mediaMessage = m.quoted.message.viewOnceMessageV2Extension || m.quoted.message.viewOnceMessageV2;
   const mediaBuffer = await downloadMediaMessage(mediaMessage, "buffer", {}, { reuploadRequest: message.client.updateMediaMessage });
 
-  if (quoted.quoted.message.viewOnceMessageV2Extension) {
+  if (m.quoted.message.viewOnceMessageV2Extension) {
     await message.client.sendMessage(message.jid, { audio: mediaBuffer, mimetype: 'audio/mpeg', ptt: true }, { quoted: message });
   } else {
     await message.sendFile(mediaBuffer);
