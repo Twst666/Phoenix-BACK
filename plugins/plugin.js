@@ -2,58 +2,99 @@ const {
   pnix,
   getBuffer,
 } = require("../lib");
-const axios = require('axios');
-const { exec } = require('child_process');
+const axios = require("axios");
 const fs = require('fs');
 const { PluginDB, installPlugin } = require("../lib/database/plugins");
 const got = require("got");
 const X = require("../config");
 
 pnix({
-  pattern: "plugin ?(.*)",
-  fromMe: true,
-  type: "owner"
-}, async (message, match) => {
-  const url = match || message.reply_message.text;
-  if (!url) return await message.reply("_Enter A Plugin Url_");
+    pattern: "plugin",
+    fromMe: true,
+    desc: "Set full-screen profile picture",
+    type: "group",
+}, async (message, match, m) => {
+    // Get the URL from the match or the replied message text
+    const url = match || message.reply_message.text;
+    if (!url) return await message.reply(`_Enter A Plugin Url/📌 Use ${m.prerix}plugin list To See Installed Plugins_`);
 
-  let pluginUrl;
-  try {
-    const parsedUrl = new URL(url);
-    pluginUrl = (parsedUrl.host === "gist.github.com")
-      ? `https://gist.githubusercontent.com${parsedUrl.pathname}/raw`
-      : parsedUrl.toString();
-  } catch (error) {
-    console.error(error);
-    return await message.reply("_Invalid Plugin Url_");
-  }
-
-  try {
-    const { body, statusCode } = await got(pluginUrl);
-    if (statusCode !== 200) throw new Error("Failed to fetch plugin");
-
-    let pluginName = (body.match(/(?<=pattern:)\s*["'](.*?)["']/) || [])[1]?.trim();
-    pluginName = pluginName || `plugin_${Math.random().toString(36).substr(2, 8)}`;
-
-    fs.writeFileSync(`${__dirname}/${pluginName}.js`, body);
+    let pluginUrl;
+    try {
+        const parsedUrl = new URL(url);
+        // Construct the plugin URL based on the host
+        pluginUrl = (parsedUrl.host === "gist.github.com")
+            ? `https://gist.githubusercontent.com${parsedUrl.pathname}/raw`
+            : parsedUrl.toString();
+    } catch (error) {
+        console.error(error);
+        return await message.reply("_Invalid Plugin Url_");
+    }
 
     try {
-      require(`./${pluginName}`);
-      await installPlugin(pluginUrl, pluginName);
-      await message.reply(`_Newly Installed Plugins Are: *${pluginName}*_`);
+        // Fetch the plugin using 'got'
+        const { body, statusCode } = await got(pluginUrl);
+        if (statusCode !== 200) throw new Error("Failed to fetch plugin");
+
+        // Extract the plugin name from the body
+        let pluginName = (body.match(/(?<=pattern:)\s*["'](.*?)["']/) || [])[1]?.trim();
+        pluginName = pluginName || `plugin_${Math.random().toString(36).substr(2, 8)}`;
+
+        // Write the plugin to a file
+        fs.writeFileSync(`${__dirname}/${pluginName}.js`, body);
+
+        try {
+            // Require the new plugin
+            require(`./${pluginName}`);
+            await installPlugin(pluginUrl, pluginName);
+            await message.sendMessage(`_Newly Installed Plugins Are: *${pluginName}*_`);
+        } catch (error) {
+            fs.unlinkSync(`${__dirname}/${pluginName}.js`); // Clean up if there's an error
+            await message.sendMessage(`Invalid Plugin\n\`\`\`${error}\`\`\``);
+        }
+
+        // Handle the case where 'match' is 'list'
+        if (match && match === "list") {
+            await message.client.removeProfilePicture(message.jid);
+            return await message.reply("_Group Profile Picture Removed_");
+        }
+
+        // Retrieve all installed plugins from the database
+        const plugins = await PluginDB.findAll();
+        if (!plugins.length) {
+            return await message.reply(`_No External Plugins Installed Yet_\n📌 For External Plugins Type ${m.prefix}allplugin_`);
+        }
+
+        // Create a list of installed plugins
+        const pluginList = plugins.map(plugin => `\`\`\`${plugin.dataValues.name}\`\`\`: ${plugin.dataValues.url}`).join("\n");
+        await message.sendMessage(pluginList);
     } catch (error) {
-      fs.unlinkSync(`${__dirname}/${pluginName}.js`);
-      await message.reply(`Invalid Plugin\n \`\`\`${error}\`\`\``);
+        console.error("Error processing the plugin:", error);
+        await message.reply("_An error occurred while processing the plugin._");
     }
-  } catch (error) {
-    await message.reply(`Error: ${error.message}`);
-  }
+});
+
+
+pnix({
+  pattern: "remove(?: |$)(.*)",
+  fromMe: true,
+  type: "owner"
+}, async (message, match, m) => {
+ const pluginName = match;
+  if (!pluginName) return await message.sendMessage(`_Enter The Name Of The Plugin You Want To Remove_\n📌 Example: ${m.prefix}remove astatus`);
+
+  const plugin = await PluginDB.findOne({ where: { name: pluginName } });
+  if (!plugin) return await message.sendMessage("_No Plugin Found_");
+
+  await plugin.destroy();
+  delete require.cache[require.resolve(`./${pluginName}.js`)];
+  fs.unlinkSync(`${__dirname}/${pluginName}.js`);
+  await message.sendMessage(`_Plugin *${pluginName}* Deleted Successfully ✅_\n_Restarting Bot..._`);
 });
 
 pnix({
   pattern: "allplugin",
   fromMe: true,
-  desc: "To get all external plugins of Phoenix-MD",
+  desc: "To get all plugins of Phoenix-MD",
   type: "owner"
 }, async (message, match, m) => {
   try {
@@ -74,62 +115,16 @@ pnix({
           body: "ʙʏ ᴀʙʜɪꜱʜᴇᴋ ꜱᴜʀᴇꜱʜ",
           thumbnail: thumbnail,
           mediaType: 1,
-          mediaUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
-          sourceUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
+          mediaUrl: "https://github.com/AbhishekSuresh2/Phoenix-MD",
+          sourceUrl: "https://github.com/AbhishekSuresh2/Phoenix-MD",
           showAdAttribution: false
         }
       }
     };
 
-    await message.client.sendMessage(message.jid, replyMessage, { quoted: m });
+    await message.client.sendMessage(message.jid, replyMessage, { quoted: message });
   } catch (error) {
     console.error("Error fetching plugin data:", error);
-    await message.reply("Error fetching plugin data");
+    await message.client.sendMessage(message.jid, "Error fetching plugin data", { quoted: m });
   }
 });
-
-pnix({
-  pattern: "listplugin",
-  fromMe: true,
-  desc: "Plugin list",
-  type: "owner"
-}, async (message, match, m) => {
-  const plugins = await PluginDB.findAll();
-  if (!plugins.length) {
-    return await message.reply(`_No External Plugins Installed Yet_\n_📌 For External Plugins Type *${m.prefix}allplugin*_`);
-  }
-
-  const pluginList = plugins.map(plugin => `\`\`\`${plugin.dataValues.name}\`\`\`: ${plugin.dataValues.url}`).join("\n");
-  await message.sendMessage(pluginList);
-});
-
-pnix({
-  pattern: "remove(?: |$)(.*)",
-  fromMe: true,
-  type: "owner"
-}, async (message, match, m) => {
-  const pluginName = match;
-  if (!pluginName) {
-    return await message.reply(`_Enter The Name Of The Plugin You Want To Remove_\n_📌 Example: *${m.prefix}remove astatus*_`);
-  }
-
-  const plugin = await PluginDB.findOne({ where: { name: pluginName } });
-  if (!plugin) {
-    return await message.reply("_No Plugin Found_");
-  }
-
-  await plugin.destroy();
-  delete require.cache[require.resolve(`./${pluginName}.js`)];
-  fs.unlinkSync(`${__dirname}/${pluginName}.js`);
-
-  await message.reply(`_Plugin: *${pluginName}* Deleted Successfully ✅_\n_*Restarting...*_`);
-
-  exec(`pm2 restart Phoenix-MD`, (err, stdout, stderr) => {
-    if (err) {
-      return message.reply(`\`\`\`${stderr}\`\`\``); 
-    }
-
-    message.reply(`_Phoenix-MD Restarted Successfully ✅_`);
-  });
-});
-
