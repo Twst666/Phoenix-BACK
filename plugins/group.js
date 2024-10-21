@@ -22,7 +22,7 @@ pnix({
     fromMe: true,
     desc: "mention all users in the group",
     type: "group",
-}, async (message, match) => {
+}, async (message, match, m) => {
     if (!message.isGroup) return await message.reply("_*This Command Is Only For Groups!*_");
     const { participants } = await message.client.groupMetadata(message.jid).catch(e => {});
     let admins = await participants.filter(v => v.admin !== null).map(v => v.id);
