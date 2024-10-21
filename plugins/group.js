@@ -1,6 +1,58 @@
 const config = require("../config");
 const { pnix, isPrivate, isAdmin, parsedJid, isUrl } = require("../lib/");
+const Jimp = require("jimp");
 
+pnix({
+    pattern: "gpp",
+    fromMe: true,
+    desc: "Set full-screen profile picture",
+    type: "group",
+}, async (message, match, m) => {  
+    if (!message.isGroup)
+    return await message.reply("_*This Command Is Only For Groups!*_");
+    let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
+    if(match && match === "remove") {
+        await message.client.removeProfilePicture(message.jid);
+        return await message.reply("_Group Profile Picture Removed_");
+    }
+    if (!message.reply_message?.image) return await message.reply(`_Reply To A Photo/Use *${m.prefix}gpp remove* To Remove Group Profile Picture_`);
+    const media = await message.reply_message.download();
+    await message.client.updateProfilePicture(message.jid, media);
+    return await message.reply("_Group Profile Picture Updated_");
+});
+
+async function updateProfilePicture(jid, imag, message) {
+  const { query } = message.client;
+  const { img } = await generateProfilePicture(imag);
+  await query({
+    tag: "iq",
+    attrs: {
+      to: jid,
+      type: "set",
+      xmlns: "w:profile:picture",
+    },
+    content: [
+      {
+        tag: "picture",
+        attrs: { type: "image" },
+        content: img,
+      },
+    ],
+  });
+}
+
+async function generateProfilePicture(buffer) {
+  const jimp = await Jimp.read(buffer);
+  const min = jimp.getWidth();
+  const max = jimp.getHeight();
+  const cropped = jimp.crop(0, 0, min, max);
+  return {
+    img: await cropped.scaleToFit(324, 720).getBufferAsync(Jimp.MIME_JPEG),
+    preview: await cropped.normalize().getBufferAsync(Jimp.MIME_JPEG),
+  };
+}
+						  
 pnix({
     pattern: 'invite',
     fromMe: isPrivate,
@@ -31,6 +83,26 @@ pnix({
     const metadata = await message.client.groupMetadata(message.jid);
     const { subject } = metadata;
     await message.reply(`╭───❮ *ɢʀᴏᴜᴘ ʟɪɴᴋ ʀᴇꜱᴇᴛᴇᴅ* ❯\n│  *ɢʀᴏᴜᴘ:* ${subject}\n│  *ɴᴇᴡ ɢʀᴏᴜᴘ  ʟɪɴᴋ:* https://chat.whatsapp.com/${data}\n╰─────────────⦁`);
+});
+
+pnix({
+    pattern: "gpp",
+    fromMe: true,
+    desc: "Set full-screen profile picture",
+    type: "group",
+}, async (message, match) => {  
+    if (!message.isGroup)
+    return await message.reply("_*This Command Is Only For Groups!*_");
+    let isadmin = await isAdmin(message.jid, message.user, message.client);
+    if (!isadmin) return await message.reply("_*I M Not An Admin!*_");
+    if(match && match === "remove") {
+        await message.client.removeProfilePicture(message.jid);
+        return await message.reply("_Group Profile Picture Removed_");
+    }
+    if (!message.reply_message?.image) return await message.reply("_Reply To A Photo_");
+    const media = await message.reply_message.download();
+    await message.client.updateProfile(media, message.jid);
+    return await message.reply("_Group Profile Picture Updated_");
 });
 
 pnix({
@@ -378,7 +450,7 @@ pnix(
         // Format owner ID
         const ownerId = owner ? "@"+owner.split("@")[0] : "Not Found";
 
-          let msg = `╭───❮ *ɢʀᴏᴜᴘ ʟɪɴᴋ ʀᴇꜱᴇᴛᴇᴅ* ❯\n│  *ɢʀᴏᴜᴘ ɴᴀᴍᴇ:* ${subject}\n│  *ᴄʀᴇᴀᴛᴏʀ:* ${ownerId}\n│  *ᴄʀᴇᴀᴛᴇᴅ ᴏɴ:* ${created}\n│  *sᴜᴘᴇʀ ᴀᴅᴍɪɴ:* ${creatorAdminPhone}\n│  *ᴛᴏᴛᴀʟ ɴᴏ ᴏғ ᴍᴇᴍʙᴇʀs:* ${participants.length}\n│  *ɴᴜᴍʙᴇʀ ᴏғ ᴀᴅᴍɪɴs:* ${adminsCount}\n│  *ɴᴜᴍʙᴇʀ ᴏғ ᴘᴀʀᴛɪᴄɪᴘᴀɴᴛs:* ${nonAdminsCount}\n\n│  *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${description}\n╰─────────────⦁`;
+          let msg = `╭───❮ *ɢʀᴏᴜᴘ ʟɪɴᴋ ʀᴇꜱᴇᴛᴇᴅ* ❯\n│  *ɢʀᴏᴜᴘ ɴᴀᴍᴇ:* ${subject}\n│  *ᴄʀᴇᴀᴛᴏʀ:* ${ownerId}\n│  *ᴄʀᴇᴀᴛᴇᴅ ᴏɴ:* ${created}\n│  *sᴜᴘᴇʀ ᴀᴅᴍɪɴ:* ${creatorAdminPhone}\n│  *ᴛᴏᴛᴀʟ ɴᴏ ᴏғ ᴍᴇᴍʙᴇʀs:* ${participants.length}\n│  *ɴᴜᴍʙᴇʀ ᴏғ ᴀᴅᴍɪɴs:* ${adminsCount}\n│  *ɴᴜᴍʙᴇʀ ᴏғ ᴘᴀʀᴛɪᴄɪᴘᴀɴᴛs:* ${nonAdminsCount}\n│\n│  *ᴅᴇsᴄʀɪᴘᴛɪᴏɴ:* ${description}\n╰─────────────⦁`;
 
 const jid = parsedJid(msg);
 return await message.reply(msg,{
