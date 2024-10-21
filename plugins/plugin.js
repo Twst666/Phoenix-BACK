@@ -10,13 +10,31 @@ const got = require("got");
 const X = require("../config");
 
 pnix({
-  pattern: "plugin ?(.*)",
+  pattern: "plugin",
   fromMe: true,
-  type: "owner"
-}, async (message, match) => {
-  const url = match || message.reply_message.text;
-  if (!url) return await message.reply("_Enter A Plugin Url_");
+  desc: "Set full-screen profile picture",
+  type: "group",
+}, async (message, match, m) => {
+  // Handle the 'list' case first
+  if (match && match === "list") {
+    const plugins = await PluginDB.findAll();
+    if (!plugins.length) {
+      return await message.reply(`_No External Plugins Installed Yet_\n_📌 For External Plugins Type *${m.prefix}allplugin*_`);
+    }
 
+    // Format the list of plugins
+    const pluginList = plugins
+      .map(plugin => `\`\`\`${plugin.dataValues.name}\`\`\`: ${plugin.dataValues.url}`)
+      .join("\n");
+
+    return await message.sendMessage(pluginList);
+  }
+
+  // Proceed if the command is not 'list'
+  const url = match || message.reply_message?.text;
+  if (!url) 
+  return await message.reply(`_Enter A Plugin Url/📌 Use *${m.prefix}plugin list* To View Installed Plugins_`);
+  
   let pluginUrl;
   try {
     const parsedUrl = new URL(url);
@@ -25,7 +43,7 @@ pnix({
       : parsedUrl.toString();
   } catch (error) {
     console.error(error);
-    return await message.reply("_Invalid Plugin Url_");
+    return; // Don't reply with an error message here if the command is not for listing
   }
 
   try {
@@ -54,19 +72,24 @@ pnix({
   pattern: "allplugin",
   fromMe: true,
   desc: "To get all external plugins of Phoenix-MD",
-  type: "owner"
+  type: "owner",
 }, async (message, match, m) => {
   try {
-    // Use the Gist URL to fetch the plugin data
+    await message.reply("_Finding External Plugins, Please Wait..._");
+
+    // Fetch the external plugins data from the provided URL
     const response = await axios.get('https://gist.github.com/AbhishekSuresh2/18abff5ff3b97ed151f07050158f26bd/raw');
     const plugins = response.data;
 
+    // Format the plugin list into a readable format
     const pluginList = Object.entries(plugins)
       .map(([name, { url }]) => `*${name}:* ${url}`)
       .join("\n\n");
 
+    // Fetch the thumbnail image
     const thumbnail = await getBuffer("https://i.ibb.co/tHWJrz3/IMG-20231128-WA0005.jpg");
 
+    // Construct the message with the plugin list and external ad reply details
     const replyMessage = {
       text: pluginList,
       contextInfo: {
@@ -77,31 +100,17 @@ pnix({
           mediaType: 1,
           mediaUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
           sourceUrl: "https://github.com/AbhishekSuresh2/Phoenix-Bot",
-          showAdAttribution: false
-        }
-      }
+          showAdAttribution: false,
+        },
+      },
     };
 
+    // Send the message with the formatted plugin list and the external ad
     await message.client.sendMessage(message.jid, replyMessage, { quoted: m });
   } catch (error) {
     console.error("Error fetching plugin data:", error);
     await message.reply("Error fetching plugin data");
   }
-});
-
-pnix({
-  pattern: "listplugin",
-  fromMe: true,
-  desc: "Plugin list",
-  type: "owner"
-}, async (message, match, m) => {
-  const plugins = await PluginDB.findAll();
-  if (!plugins.length) {
-    return await message.reply(`_No External Plugins Installed Yet_\n_📌 For External Plugins Type *${m.prefix}allplugin*_`);
-  }
-
-  const pluginList = plugins.map(plugin => `\`\`\`${plugin.dataValues.name}\`\`\`: ${plugin.dataValues.url}`).join("\n");
-  await message.sendMessage(pluginList);
 });
 
 pnix({
